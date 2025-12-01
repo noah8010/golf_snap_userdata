@@ -9,6 +9,7 @@ import '../models/round.dart';
 import 'widgets/scorecard_expansion_tile.dart';
 import 'widgets/score_record_card.dart';
 import 'widgets/stat_card.dart';
+import 'widgets/comparison_card.dart';
 
 class ScoreStatsScreen extends ConsumerWidget {
   const ScoreStatsScreen({super.key});
@@ -34,6 +35,16 @@ class ScoreStatsScreen extends ConsumerWidget {
             _buildSectionHeader('Overview'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreOverviewCards(),
+            
+            const SizedBox(height: AppStyles.spacingLarge),
+            _buildSectionHeader('Comparison'),
+            const SizedBox(height: AppStyles.spacingMedium),
+            _ScoreComparisonCards(),
+            
+            const SizedBox(height: AppStyles.spacingLarge),
+            _buildSectionHeader('Comparison'),
+            const SizedBox(height: AppStyles.spacingMedium),
+            _ScoreComparisonCards(),
             
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Score Trend'),
@@ -193,6 +204,42 @@ class _ScoreOverviewCards extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Text('Error: $e'),
       ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Text('Error: $e'),
+    );
+  }
+}
+
+// Comparison Cards
+class _ScoreComparisonCards extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userStatsAsync = ref.watch(userStatsProvider);
+    
+    return userStatsAsync.when(
+      data: (stats) {
+        return Row(
+          children: [
+            Expanded(
+              child: ComparisonCard(
+                title: '평균 스코어',
+                userValue: stats['avgScore'] ?? 0,
+                metric: 'score',
+                lowerIsBetter: true,
+              ),
+            ),
+            const SizedBox(width: AppStyles.spacingMedium),
+            Expanded(
+              child: ComparisonCard(
+                title: 'GIR',
+                userValue: stats['gir'] ?? 0,
+                metric: 'gir',
+                unit: '%',
+              ),
+            ),
+          ],
+        );
+      },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Text('Error: $e'),
     );

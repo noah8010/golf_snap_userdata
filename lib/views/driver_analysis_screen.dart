@@ -7,6 +7,7 @@ import 'widgets/distance_stats_card.dart';
 import 'widgets/accuracy_stats_card.dart';
 import 'widgets/penalty_stats_card.dart';
 import 'widgets/ball_flight_chart.dart';
+import 'widgets/comparison_card.dart';
 
 class DriverAnalysisScreen extends ConsumerWidget {
   const DriverAnalysisScreen({super.key});
@@ -42,6 +43,14 @@ class DriverAnalysisScreen extends ConsumerWidget {
               children: [
                 // 기본 정보
                 _buildInfoCard(analysis),
+                const SizedBox(height: AppStyles.spacingLarge),
+
+                const Text(
+                  'Comparison',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppStyles.spacingSmall),
+                _DriverComparisonCards(),
                 const SizedBox(height: AppStyles.spacingLarge),
 
                 // 비거리 분석
@@ -122,6 +131,41 @@ class DriverAnalysisScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DriverComparisonCards extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final driverStatsAsync = ref.watch(driverAnalysisProvider);
+    
+    return driverStatsAsync.when(
+      data: (stats) {
+        return Row(
+          children: [
+            Expanded(
+              child: ComparisonCard(
+                title: '평균 비거리',
+                userValue: stats.averageTotalDistance ?? 0,
+                metric: 'driverDistance',
+                unit: 'm',
+              ),
+            ),
+            const SizedBox(width: AppStyles.spacingMedium),
+            Expanded(
+              child: ComparisonCard(
+                title: '페어웨이 적중률',
+                userValue: stats.fairwayAccuracy ?? 0,
+                metric: 'fairway',
+                unit: '%',
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Text('Error: $e'),
     );
   }
 }

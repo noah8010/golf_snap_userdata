@@ -9,11 +9,14 @@ import '../models/driver_analysis.dart';
 import '../repositories/asset_repository.dart';
 import '../repositories/stats_repository.dart';
 import '../repositories/driver_repository.dart';
+import '../repositories/benchmark_repository.dart';
+import '../models/benchmark_stats.dart';
 
 // Repositories
 final assetRepositoryProvider = Provider((ref) => AssetRepository());
 final statsRepositoryProvider = Provider((ref) => StatsRepository());
 final driverRepositoryProvider = Provider((ref) => DriverRepository());
+final benchmarkRepositoryProvider = Provider((ref) => BenchmarkRepository());
 
 // Data Providers
 final allRoundsProvider = FutureProvider<List<Round>>((ref) async {
@@ -202,5 +205,56 @@ final driverAnalysisProvider = Provider<AsyncValue<DriverAnalysis>>((ref) {
 
   return roundsAsync.whenData((rounds) {
     return driverRepo.getDriverAnalysis(rounds);
+  });
+});
+
+// ===== 비교 통계 Providers =====
+
+// 벤치마크 통계
+final benchmarkStatsProvider = Provider<AsyncValue<BenchmarkStats>>((ref) {
+  final allRoundsAsync = ref.watch(allRoundsProvider);
+  final repo = ref.watch(benchmarkRepositoryProvider);
+
+  return allRoundsAsync.whenData((rounds) {
+    return repo.calculateBenchmark(rounds);
+  });
+});
+
+// 사용자 퍼센타일
+final userPercentilesProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
+  final benchmarkAsync = ref.watch(benchmarkStatsProvider);
+  final userStatsAsync = ref.watch(userStatsProvider);
+  final driverStatsAsync = ref.watch(driverAnalysisProvider);
+  final repo = ref.watch(benchmarkRepositoryProvider);
+
+  return benchmarkAsync.whenData((benchmark) {
+    return userStatsAsync.whenData((userStats) {
+      return driverStatsAsync.whenData((driverStats) {
+        return {
+          'score': repo.calculatePercentile(
+            userStats['avgScore'] ?? 0,
+            benchmark.scoreDistribution,
+            lowerIsBetter: true,
+          ),
+          'fairway': repo.calculatePercentile(
+            userStats['fairway'] ?? 0,
+            benchmark.fairwayDistribution,
+          ),
+          'driverDistance': repo.calculatePercentile(
+            driverStats.averageTotalDistance ?? 0,
+            benchmark.driverDistanceDistribution,
+          ),
+          'putts': repo.calculatePercentile(
+            userStats['avgPutts'] ?? 0,
+            benchmark.puttsDistribution,
+            lowerIsBetter: true,
+          ),
+          'gir': repo.calculatePercentile(
+            userStats['gir'] ?? 0,
+            benchmark.girDistribution,
+          ),
+        };
+      }).value ?? {};
+    }).value ?? {};
   });
 });
