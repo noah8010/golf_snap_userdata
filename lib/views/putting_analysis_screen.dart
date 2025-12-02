@@ -5,8 +5,6 @@ import '../utils/app_constants.dart';
 
 import 'widgets/distance_success_chart.dart';
 import 'widgets/three_putt_pie_chart.dart';
-import 'widgets/distance_success_chart.dart';
-import 'widgets/three_putt_pie_chart.dart';
 import 'widgets/first_putt_card.dart';
 import 'widgets/comparison_card.dart';
 import '../viewmodels/providers.dart';
@@ -53,7 +51,7 @@ class PuttingAnalysisScreen extends ConsumerWidget {
       ),
     );
   }
-  }
+
 }
 
 class _PuttingComparisonCards extends ConsumerWidget {

@@ -339,7 +339,7 @@ class StatsRepository {
         // 첫 퍼트 분석
         if (holePutts.isNotEmpty) {
           firstPuttAttempts++;
-          final firstPutt = holePutts.first;
+          // firstPutt variable removed as it was unused
           
           // 첫 퍼트가 성공했는지 확인 (다음 퍼트가 없거나, 거리가 매우 짧으면 성공으로 간주)
           if (holePutts.length == 1 || (holePutts.length > 1 && (holePutts[1].puttLength ?? 0) < 0.5)) {

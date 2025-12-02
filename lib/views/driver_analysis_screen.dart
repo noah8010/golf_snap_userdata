@@ -147,7 +147,7 @@ class _DriverComparisonCards extends ConsumerWidget {
             Expanded(
               child: ComparisonCard(
                 title: '평균 비거리',
-                userValue: stats.averageTotalDistance ?? 0,
+                userValue: stats.averageTotalDistance,
                 metric: 'driverDistance',
                 unit: 'm',
               ),
@@ -156,7 +156,7 @@ class _DriverComparisonCards extends ConsumerWidget {
             Expanded(
               child: ComparisonCard(
                 title: '페어웨이 적중률',
-                userValue: stats.fairwayAccuracy ?? 0,
+                userValue: stats.fairwayHitRate,
                 metric: 'fairway',
                 unit: '%',
               ),

@@ -11,13 +11,13 @@ class ComparisonCard extends ConsumerWidget {
   final bool lowerIsBetter;
   
   const ComparisonCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.userValue,
     required this.metric,
     this.unit = '',
     this.lowerIsBetter = false,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,8 +117,10 @@ class ComparisonCard extends ConsumerWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
+        // ignore: deprecated_member_use
         border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Text(

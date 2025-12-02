@@ -55,10 +55,9 @@ class BenchmarkRepository {
     
     final putts = rounds.map((r) => r.totalPutts.toDouble()).toList();
     
-    // Extract driver shots
+    // Extract driver shots from Round.shots (not Hole.shots)
     final driverShots = rounds
-      .expand((r) => r.holes)
-      .expand((h) => h.shots)
+      .expand((r) => r.shots)
       .where((s) => s.clubType == 'CLUB_D' && !s.isMulligan)
       .toList();
     
@@ -100,23 +99,22 @@ class BenchmarkRepository {
     };
     
     for (var round in rounds) {
-      for (var hole in round.holes) {
-        for (var shot in hole.shots) {
-          if (shot.isPutt && shot.puttLength != null) {
-            final distance = shot.puttLength!;
-            final made = shot.puttMade;
-            
-            if (distance <= 1) {
-              puttsByDistance['0-1m']!.add(made);
-            } else if (distance <= 3) {
-              puttsByDistance['1-3m']!.add(made);
-            } else if (distance <= 5) {
-              puttsByDistance['3-5m']!.add(made);
-            } else if (distance <= 10) {
-              puttsByDistance['5-10m']!.add(made);
-            } else {
-              puttsByDistance['10m+']!.add(made);
-            }
+      // Use Round.shots instead of Hole.shots
+      for (var shot in round.shots) {
+        if (shot.isPutt && shot.puttLength != null) {
+          final distance = shot.puttLength!;
+          final made = shot.puttMade ?? false;
+          
+          if (distance <= 1) {
+            puttsByDistance['0-1m']!.add(made);
+          } else if (distance <= 3) {
+            puttsByDistance['1-3m']!.add(made);
+          } else if (distance <= 5) {
+            puttsByDistance['3-5m']!.add(made);
+          } else if (distance <= 10) {
+            puttsByDistance['5-10m']!.add(made);
+          } else {
+            puttsByDistance['10m+']!.add(made);
           }
         }
       }
@@ -131,26 +129,21 @@ class BenchmarkRepository {
   
   /// Create distributions for percentile calculation
   Map<String, List<double>> _createDistributions(List<Round> rounds) {
-    final scores = rounds.map((r) => r.totalScore.toDouble()).toList()..sort();
+    final List<double> scores = List<double>.from(rounds.map((r) => r.totalScore.toDouble()))..sort();
     
-    final fairways = rounds
-      .map((r) => r.fairwaysAttempted > 0 ? r.fairwaysHit / r.fairwaysAttempted * 100 : 0.0)
-      .toList()..sort();
+    final List<double> fairways = List<double>.from(rounds
+      .map((r) => r.fairwaysAttempted > 0 ? r.fairwaysHit / r.fairwaysAttempted * 100 : 0.0))..sort();
       
-    final girs = rounds
-      .map((r) => r.greensInRegulation / 18.0 * 100)
-      .toList()..sort();
+    final List<double> girs = List<double>.from(rounds
+      .map((r) => r.greensInRegulation / 18.0 * 100))..sort();
       
-    final putts = rounds
-      .map((r) => r.totalPutts.toDouble())
-      .toList()..sort();
+    final List<double> putts = List<double>.from(rounds
+      .map((r) => r.totalPutts.toDouble()))..sort();
     
-    final driverDistances = rounds
-      .expand((r) => r.holes)
-      .expand((h) => h.shots)
+    final List<double> driverDistances = List<double>.from(rounds
+      .expand((r) => r.shots)
       .where((s) => s.clubType == 'CLUB_D' && s.totalDistance != null)
-      .map((s) => s.totalDistance!)
-      .toList()..sort();
+      .map((s) => s.totalDistance!))..sort();
     
     return {
       'score': scores,
