@@ -22,7 +22,7 @@ class ThreePuttPieChart extends StatelessWidget {
             PieChartSectionData(
               value: 100 - rate,
               title: '${(100 - rate).toStringAsFixed(1)}%',
-              color: AppColors.puttsColor.withValues(alpha: 0.3),
+              color: AppColors.puttsColor.withOpacity(0.3),
               radius: 50,
             ),
           ],
