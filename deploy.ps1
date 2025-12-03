@@ -13,11 +13,8 @@ Write-Host ""
 
 # main 브랜치가 아니면 경고
 if ($currentBranch -ne "main") {
-    $continue = Read-Host "[경고] main 브랜치가 아닙니다. 계속하시겠습니까? (Y/N)"
-    if ($continue -ne "Y" -and $continue -ne "y") {
-        Write-Host "배포를 취소했습니다." -ForegroundColor Red
-        exit 1
-    }
+    Write-Host "[경고] main 브랜치가 아닙니다. 현재 브랜치: $currentBranch" -ForegroundColor Yellow
+    Write-Host "[경고] 계속 진행합니다..." -ForegroundColor Yellow
 }
 
 Write-Host "[1/5] Flutter 웹 빌드 실행 중..." -ForegroundColor Green
@@ -89,5 +86,4 @@ Write-Host ""
 Write-Host "GitHub Pages가 업데이트되는데 몇 분 정도 걸릴 수 있습니다." -ForegroundColor Yellow
 Write-Host "URL: https://noah8010.github.io/golf_snap_userdata/" -ForegroundColor Cyan
 Write-Host ""
-Read-Host "계속하려면 Enter를 누르세요"
 
