@@ -86,4 +86,3 @@ Write-Host ""
 Write-Host "GitHub Pages가 업데이트되는데 몇 분 정도 걸릴 수 있습니다." -ForegroundColor Yellow
 Write-Host "URL: https://noah8010.github.io/golf_snap_userdata/" -ForegroundColor Cyan
 Write-Host ""
-
