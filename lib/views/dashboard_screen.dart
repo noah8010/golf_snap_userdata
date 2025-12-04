@@ -49,8 +49,11 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, Map<String, double> stats,
-      Map<String, dynamic> records) {
+  Widget _buildContent(
+    BuildContext context,
+    Map<String, double> stats,
+    Map<String, dynamic> records,
+  ) {
     final best = records['best'];
     final worst = records['worst'];
 
@@ -152,9 +155,7 @@ class DashboardScreen extends ConsumerWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const ScoreStatsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const ScoreStatsScreen()),
                   );
                 },
                 icon: const Icon(Icons.analytics),
@@ -162,8 +163,10 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.scoreColor,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -184,8 +187,10 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.puttsColor,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -206,8 +211,10 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.driverColor,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -341,6 +348,8 @@ class DashboardScreen extends ConsumerWidget {
                 metric: 'score',
                 lowerIsBetter: true,
                 target: BenchmarkTarget.top10,
+                showUserValue: false,
+                showDifference: false,
               ),
             ),
             const SizedBox(width: AppStyles.spacingMedium),
@@ -351,6 +360,8 @@ class DashboardScreen extends ConsumerWidget {
                 metric: 'fairway',
                 unit: '%',
                 target: BenchmarkTarget.top10,
+                showUserValue: false,
+                showDifference: false,
               ),
             ),
           ],
@@ -365,6 +376,8 @@ class DashboardScreen extends ConsumerWidget {
                 metric: 'gir',
                 unit: '%',
                 target: BenchmarkTarget.top10,
+                showUserValue: false,
+                showDifference: false,
               ),
             ),
             const SizedBox(width: AppStyles.spacingMedium),
@@ -375,6 +388,8 @@ class DashboardScreen extends ConsumerWidget {
                 metric: 'putts',
                 lowerIsBetter: true,
                 target: BenchmarkTarget.top10,
+                showUserValue: false,
+                showDifference: false,
               ),
             ),
           ],

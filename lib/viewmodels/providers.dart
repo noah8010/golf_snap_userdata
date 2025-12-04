@@ -30,7 +30,9 @@ final codeMastersProvider = FutureProvider<List<CodeMaster>>((ref) async {
 });
 
 // User ID (현재는 하드코딩된 'noah.nam' 사용)
-final currentUserIdProvider = StateProvider<String>((ref) => 'beginner.user001');
+final currentUserIdProvider = StateProvider<String>(
+  (ref) => 'beginner.user001',
+);
 
 // Stats Limit (null means all rounds)
 final statsLimitProvider = StateProvider<int?>((ref) => 10);
@@ -44,7 +46,7 @@ final filteredRoundsProvider = Provider<AsyncValue<List<Round>>>((ref) {
 
   return allRoundsAsync.whenData((rounds) {
     final userRounds = statsRepo.filterRoundsByUser(rounds, userId);
-    
+
     // Sort by date descending to get "recent" rounds
     userRounds.sort((a, b) => b.playedAt.compareTo(a.playedAt));
 
@@ -87,7 +89,9 @@ final userStatsProvider = Provider<AsyncValue<Map<String, double>>>((ref) {
 // ===== 신규 통계 Providers (Phase 1) =====
 
 // 스코어 범위 (베스트/워스트) - ScoreRecord 반환
-final scoreRecordsProvider = Provider<AsyncValue<Map<String, ScoreRecord?>>>((ref) {
+final scoreRecordsProvider = Provider<AsyncValue<Map<String, ScoreRecord?>>>((
+  ref,
+) {
   final roundsAsync = ref.watch(filteredRoundsProvider);
   final statsRepo = ref.watch(statsRepositoryProvider);
 
@@ -221,6 +225,20 @@ final benchmarkStatsProvider = Provider<AsyncValue<BenchmarkStats>>((ref) {
   });
 });
 
+final peerBenchmarkStatsProvider = Provider<AsyncValue<BenchmarkStats>>((ref) {
+  final allRoundsAsync = ref.watch(allRoundsProvider);
+  final userStatsAsync = ref.watch(userStatsProvider);
+  final repo = ref.watch(benchmarkRepositoryProvider);
+
+  return allRoundsAsync.whenData((rounds) {
+    final avgScore = userStatsAsync.value?['avgScore'];
+    if (avgScore == null || avgScore == 0) {
+      return repo.calculateBenchmark(rounds);
+    }
+    return repo.calculateBenchmarkForScoreRange(rounds, avgScore, 5);
+  });
+});
+
 // 사용자 퍼센타일
 final userPercentilesProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
   final benchmarkAsync = ref.watch(benchmarkStatsProvider);
@@ -230,32 +248,34 @@ final userPercentilesProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
 
   return benchmarkAsync.whenData((benchmark) {
     return userStatsAsync.whenData((userStats) {
-      return driverStatsAsync.whenData((driverStats) {
-        return {
-          'score': repo.calculatePercentile(
-            userStats['avgScore'] ?? 0,
-            benchmark.scoreDistribution,
-            lowerIsBetter: true,
-          ),
-          'fairway': repo.calculatePercentile(
-            userStats['fairway'] ?? 0,
-            benchmark.fairwayDistribution,
-          ),
-          'driverDistance': repo.calculatePercentile(
-            driverStats.averageTotalDistance ?? 0,
-            benchmark.driverDistanceDistribution,
-          ),
-          'putts': repo.calculatePercentile(
-            userStats['avgPutts'] ?? 0,
-            benchmark.puttsDistribution,
-            lowerIsBetter: true,
-          ),
-          'gir': repo.calculatePercentile(
-            userStats['gir'] ?? 0,
-            benchmark.girDistribution,
-          ),
-        };
-      }).value ?? {};
-    }).value ?? {};
+          return driverStatsAsync.whenData((driverStats) {
+                return {
+                  'score': repo.calculatePercentile(
+                    userStats['avgScore'] ?? 0,
+                    benchmark.scoreDistribution,
+                    lowerIsBetter: true,
+                  ),
+                  'fairway': repo.calculatePercentile(
+                    userStats['fairway'] ?? 0,
+                    benchmark.fairwayDistribution,
+                  ),
+                  'driverDistance': repo.calculatePercentile(
+                    driverStats.averageTotalDistance ?? 0,
+                    benchmark.driverDistanceDistribution,
+                  ),
+                  'putts': repo.calculatePercentile(
+                    userStats['avgPutts'] ?? 0,
+                    benchmark.puttsDistribution,
+                    lowerIsBetter: true,
+                  ),
+                  'gir': repo.calculatePercentile(
+                    userStats['gir'] ?? 0,
+                    benchmark.girDistribution,
+                  ),
+                };
+              }).value ??
+              {};
+        }).value ??
+        {};
   });
 });

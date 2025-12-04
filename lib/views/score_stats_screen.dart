@@ -40,10 +40,6 @@ class ScoreStatsScreen extends ConsumerWidget {
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreComparisonCards(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Comparison'),
-            const SizedBox(height: AppStyles.spacingMedium),
-            _ScoreComparisonCards(),
-            const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Score Trend'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreTrendChart(),
@@ -52,7 +48,9 @@ class ScoreStatsScreen extends ConsumerWidget {
             Text(
               'Number of rounds for each total score',
               style: GoogleFonts.outfit(
-                  fontSize: 12, color: AppColors.textSecondary),
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: AppStyles.spacingSmall),
             _ScoreDistributionChart(),
@@ -114,8 +112,11 @@ class _RecentScorecardsList extends ConsumerWidget {
 
         // 최신순으로 정렬하고 최대 5개만 표시
         final recentRounds = List<Round>.from(rounds)
-          ..sort((a, b) =>
-              DateTime.parse(b.playedAt).compareTo(DateTime.parse(a.playedAt)));
+          ..sort(
+            (a, b) => DateTime.parse(
+              b.playedAt,
+            ).compareTo(DateTime.parse(a.playedAt)),
+          );
         final displayRounds = recentRounds.take(5).toList();
 
         return Column(
@@ -223,6 +224,8 @@ class _ScoreComparisonCards extends ConsumerWidget {
                 userValue: stats['avgScore'] ?? 0,
                 metric: 'score',
                 lowerIsBetter: true,
+                usePeerRange: true,
+                targetLabelOverride: '±5타 평균',
               ),
             ),
             const SizedBox(width: AppStyles.spacingMedium),
@@ -232,6 +235,8 @@ class _ScoreComparisonCards extends ConsumerWidget {
                 userValue: stats['gir'] ?? 0,
                 metric: 'gir',
                 unit: '%',
+                usePeerRange: true,
+                targetLabelOverride: '±5타 평균',
               ),
             ),
           ],
@@ -306,9 +311,11 @@ class _ScoreTrendChart extends ConsumerWidget {
                             ),
                           ),
                           rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
                         borderData: FlBorderData(show: true),
                         lineBarsData: [
@@ -316,8 +323,12 @@ class _ScoreTrendChart extends ConsumerWidget {
                             spots: trends
                                 .asMap()
                                 .entries
-                                .map((e) => FlSpot(
-                                    e.key.toDouble(), e.value.score.toDouble()))
+                                .map(
+                                  (e) => FlSpot(
+                                    e.key.toDouble(),
+                                    e.value.score.toDouble(),
+                                  ),
+                                )
                                 .toList(),
                             isCurved: true,
                             color: AppColors.scoreColor,
@@ -380,13 +391,13 @@ class _ScoreDistributionChart extends ConsumerWidget {
 
         return benchmarkAsync.when(
           data: (benchmark) {
-            final overallDistribution =
-                _buildFrequencyMap(benchmark.scoreDistribution);
+            final overallDistribution = _buildFrequencyMap(
+              benchmark.scoreDistribution,
+            );
             final keys = {
               ...distribution.keys,
               ...overallDistribution.keys,
-            }.toList()
-              ..sort();
+            }.toList()..sort();
 
             return Container(
               height: 280,
@@ -406,7 +417,9 @@ class _ScoreDistributionChart extends ConsumerWidget {
                             axisNameWidget: Text(
                               'Rounds',
                               style: GoogleFonts.outfit(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -421,7 +434,9 @@ class _ScoreDistributionChart extends ConsumerWidget {
                             axisNameWidget: Text(
                               'Total Score',
                               style: GoogleFonts.outfit(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -432,9 +447,11 @@ class _ScoreDistributionChart extends ConsumerWidget {
                             ),
                           ),
                           rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
                         borderData: FlBorderData(show: true),
                         barGroups: keys.map((key) {
@@ -636,16 +653,28 @@ class _ScoreBreakdownPie extends ConsumerWidget {
                   children: [
                     if (breakdown.eagles > 0)
                       _buildLegendItem(
-                          'Eagle', const Color(0xFF00C853), breakdown.eagles),
+                        'Eagle',
+                        const Color(0xFF00C853),
+                        breakdown.eagles,
+                      ),
                     if (breakdown.birdies > 0)
                       _buildLegendItem(
-                          'Birdie', const Color(0xFF64DD17), breakdown.birdies),
+                        'Birdie',
+                        const Color(0xFF64DD17),
+                        breakdown.birdies,
+                      ),
                     _buildLegendItem(
-                        'Par', AppColors.scoreColor, breakdown.pars),
+                      'Par',
+                      AppColors.scoreColor,
+                      breakdown.pars,
+                    ),
                     _buildLegendItem('Bogey', Colors.orange, breakdown.bogeys),
                     if (breakdown.doubleBogeys + breakdown.others > 0)
-                      _buildLegendItem('Double+', Colors.red,
-                          breakdown.doubleBogeys + breakdown.others),
+                      _buildLegendItem(
+                        'Double+',
+                        Colors.red,
+                        breakdown.doubleBogeys + breakdown.others,
+                      ),
                   ],
                 ),
               ),
@@ -669,16 +698,10 @@ class _ScoreBreakdownPie extends ConsumerWidget {
           Container(
             width: 16,
             height: 16,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
-          Text(
-            '$label ($count)',
-            style: GoogleFonts.outfit(fontSize: 12),
-          ),
+          Text('$label ($count)', style: GoogleFonts.outfit(fontSize: 12)),
         ],
       ),
     );
@@ -701,9 +724,13 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label,
-            style: GoogleFonts.outfit(
-                fontSize: 11, color: AppColors.textSecondary)),
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            color: AppColors.textSecondary,
+          ),
+        ),
       ],
     );
   }

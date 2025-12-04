@@ -3,11 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../viewmodels/providers.dart';
 import '../../models/benchmark_stats.dart';
 
-enum BenchmarkTarget {
-  overall,
-  top10,
-  bottom10,
-}
+enum BenchmarkTarget { overall, top10, bottom10 }
 
 class ComparisonCard extends ConsumerWidget {
   final String title;
@@ -17,6 +13,9 @@ class ComparisonCard extends ConsumerWidget {
   final bool lowerIsBetter;
   final BenchmarkTarget target;
   final String? targetLabelOverride;
+  final bool usePeerRange;
+  final bool showUserValue;
+  final bool showDifference;
 
   const ComparisonCard({
     super.key,
@@ -27,11 +26,16 @@ class ComparisonCard extends ConsumerWidget {
     this.lowerIsBetter = false,
     this.target = BenchmarkTarget.overall,
     this.targetLabelOverride,
+    this.usePeerRange = false,
+    this.showUserValue = true,
+    this.showDifference = true,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final benchmarkAsync = ref.watch(benchmarkStatsProvider);
+    final benchmarkAsync = usePeerRange
+        ? ref.watch(peerBenchmarkStatsProvider)
+        : ref.watch(benchmarkStatsProvider);
     final percentilesAsync = ref.watch(userPercentilesProvider);
 
     return Card(
@@ -51,28 +55,52 @@ class ComparisonCard extends ConsumerWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        )),
-                    SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${userValue.toStringAsFixed(1)}$unit',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        _buildPercentileBadge(percentile),
-                      ],
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    SizedBox(height: 12),
-                    Divider(height: 1),
-                    SizedBox(height: 12),
+                    SizedBox(height: 8),
+                    if (showUserValue) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${userValue.toStringAsFixed(1)}$unit',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Spacer(),
+                          _buildPercentileBadge(percentile),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Divider(height: 1),
+                      SizedBox(height: 12),
+                    ] else ...[
+                      Text(
+                        targetLabelOverride ?? _defaultTargetLabel(target),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        '${benchmarkValue.toStringAsFixed(1)}$unit',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                    ],
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -83,37 +111,48 @@ class ComparisonCard extends ConsumerWidget {
                               targetLabelOverride ??
                                   _defaultTargetLabel(target),
                               style: TextStyle(
-                                  fontSize: 11, color: Colors.grey[600]),
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
                             ),
                             SizedBox(height: 2),
                             Text(
                               '${benchmarkValue.toStringAsFixed(1)}$unit',
                               style: TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text('차이',
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.grey[600])),
-                            SizedBox(height: 2),
-                            Text(
-                              '${difference > 0 ? '+' : ''}${difference.toStringAsFixed(1)}$unit',
-                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: _getDifferenceColor(difference),
                               ),
                             ),
                           ],
                         ),
+                        if (showUserValue && showDifference)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '차이',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                '${difference > 0 ? '+' : ''}${difference.toStringAsFixed(1)}$unit',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _getDifferenceColor(difference),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
-                    SizedBox(height: 12),
-                    _buildPercentileBar(percentile),
+                    if (showUserValue) ...[
+                      SizedBox(height: 12),
+                      _buildPercentileBar(percentile),
+                    ],
                   ],
                 );
               },
