@@ -10,6 +10,8 @@ import 'driver_analysis_screen.dart';
 import 'widgets/score_record_card.dart';
 import 'widgets/stat_card.dart';
 import 'widgets/comparison_card.dart';
+import 'widgets/radar_chart_widget.dart';
+import '../models/benchmark_stats.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -47,7 +49,8 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, Map<String, double> stats, Map<String, dynamic> records) {
+  Widget _buildContent(BuildContext context, Map<String, double> stats,
+      Map<String, dynamic> records) {
     final best = records['best'];
     final worst = records['worst'];
 
@@ -116,6 +119,30 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: AppStyles.spacingMedium),
           _buildComparisonGrid(stats),
           const SizedBox(height: AppStyles.spacingLarge),
+          _buildHeader('Top 10% Comparison'),
+          const SizedBox(height: AppStyles.spacingMedium),
+          _buildTopComparisonGrid(stats),
+          const SizedBox(height: AppStyles.spacingMedium),
+          Consumer(
+            builder: (context, ref, _) {
+              final benchmarkAsync = ref.watch(benchmarkStatsProvider);
+              return benchmarkAsync.when(
+                data: (benchmark) => RadarChartWidget(
+                  userStats: stats,
+                  benchmarkStats: {
+                    'avgScore': benchmark.overall.averageScore,
+                    'avgPutts': benchmark.overall.averagePutts,
+                    'driverDistance': benchmark.overall.driverDistance,
+                    'girPercentage': benchmark.overall.girPercentage,
+                    'fairwayAccuracy': benchmark.overall.fairwayAccuracy,
+                  },
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              );
+            },
+          ),
+          const SizedBox(height: AppStyles.spacingLarge),
           _buildHeader('Recent Rounds'),
           const SizedBox(height: AppStyles.spacingMedium),
           Column(
@@ -135,7 +162,8 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.scoreColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -156,7 +184,8 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.puttsColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -177,7 +206,8 @@ class DashboardScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.driverColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -291,6 +321,60 @@ class DashboardScreen extends ConsumerWidget {
                 userValue: stats['avgPutts'] ?? 0,
                 metric: 'putts',
                 lowerIsBetter: true,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopComparisonGrid(Map<String, double> stats) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ComparisonCard(
+                title: '평균 스코어',
+                userValue: stats['avgScore'] ?? 0,
+                metric: 'score',
+                lowerIsBetter: true,
+                target: BenchmarkTarget.top10,
+              ),
+            ),
+            const SizedBox(width: AppStyles.spacingMedium),
+            Expanded(
+              child: ComparisonCard(
+                title: '페어웨이 적중률',
+                userValue: stats['fairway'] ?? 0,
+                metric: 'fairway',
+                unit: '%',
+                target: BenchmarkTarget.top10,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppStyles.spacingMedium),
+        Row(
+          children: [
+            Expanded(
+              child: ComparisonCard(
+                title: 'GIR',
+                userValue: stats['gir'] ?? 0,
+                metric: 'gir',
+                unit: '%',
+                target: BenchmarkTarget.top10,
+              ),
+            ),
+            const SizedBox(width: AppStyles.spacingMedium),
+            Expanded(
+              child: ComparisonCard(
+                title: '평균 퍼팅',
+                userValue: stats['avgPutts'] ?? 0,
+                metric: 'putts',
+                lowerIsBetter: true,
+                target: BenchmarkTarget.top10,
               ),
             ),
           ],

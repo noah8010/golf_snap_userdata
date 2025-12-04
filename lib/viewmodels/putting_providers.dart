@@ -21,6 +21,7 @@ final puttingStatsProvider = Provider<AsyncValue<PuttingStats>>((ref) {
       distanceSuccessRate: distanceSuccessRate,
       threePuttRate: analysis.threePuttRate,
       firstPuttSuccessRate: analysis.firstPuttSuccessRate,
+      secondPuttSuccessRate: analysis.secondPuttSuccessRate,
     );
   });
 });

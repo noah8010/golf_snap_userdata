@@ -30,7 +30,7 @@ final codeMastersProvider = FutureProvider<List<CodeMaster>>((ref) async {
 });
 
 // User ID (현재는 하드코딩된 'noah.nam' 사용)
-final currentUserIdProvider = StateProvider<String>((ref) => 'noah.nam');
+final currentUserIdProvider = StateProvider<String>((ref) => 'beginner.user001');
 
 // Stats Limit (null means all rounds)
 final statsLimitProvider = StateProvider<int?>((ref) => 10);
@@ -79,6 +79,7 @@ final userStatsProvider = Provider<AsyncValue<Map<String, double>>>((ref) {
       'driverDist': statsRepo.calculateDriverDistance(rounds),
       'gir': statsRepo.calculateGirPercentage(rounds),
       'fairway': statsRepo.calculateFairwayPercentage(rounds),
+      'threePuttRate': statsRepo.getPuttAnalysis(rounds).threePuttRate,
     };
   });
 });

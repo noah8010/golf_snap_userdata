@@ -43,6 +43,10 @@ class PuttingAnalysisScreen extends ConsumerWidget {
               const Text('첫 퍼트 성공률', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: AppStyles.spacingSmall),
               FirstPuttCard(rate: stats.firstPuttSuccessRate),
+              const SizedBox(height: AppStyles.spacingLarge),
+              const Text('2퍼트 성공률', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: AppStyles.spacingSmall),
+              _SecondPuttCard(rate: stats.secondPuttSuccessRate),
             ],
           ),
         ),
@@ -75,9 +79,10 @@ class _PuttingComparisonCards extends ConsumerWidget {
             Expanded(
               child: ComparisonCard(
                 title: '3퍼트율',
-                userValue: 0, // TODO: Add 3-putt rate to userStats or fetch from elsewhere
+                userValue: stats['threePuttRate'] ?? 0,
                 metric: 'putts', // Using putts metric as proxy for now
                 lowerIsBetter: true,
+                unit: '%',
               ),
             ),
           ],
@@ -85,6 +90,29 @@ class _PuttingComparisonCards extends ConsumerWidget {
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Text('Error: $e'),
+    );
+  }
+}
+
+class _SecondPuttCard extends StatelessWidget {
+  final double rate;
+  const _SecondPuttCard({required this.rate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const Text('2nd Putt Success Rate', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('${rate.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -35,36 +35,31 @@ class ScoreStatsScreen extends ConsumerWidget {
             _buildSectionHeader('Overview'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreOverviewCards(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Comparison'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreComparisonCards(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Comparison'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreComparisonCards(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Score Trend'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreTrendChart(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Score Distribution'),
             Text(
               'Number of rounds for each total score',
-              style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+              style: GoogleFonts.outfit(
+                  fontSize: 12, color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppStyles.spacingSmall),
             _ScoreDistributionChart(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Average by Par'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ParAverageChart(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,7 +78,6 @@ class ScoreStatsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppStyles.spacingMedium),
             _RecentScorecardsList(),
-            
             const SizedBox(height: AppStyles.spacingLarge),
             _buildSectionHeader('Score Breakdown'),
             const SizedBox(height: AppStyles.spacingMedium),
@@ -120,11 +114,14 @@ class _RecentScorecardsList extends ConsumerWidget {
 
         // 최신순으로 정렬하고 최대 5개만 표시
         final recentRounds = List<Round>.from(rounds)
-          ..sort((a, b) => DateTime.parse(b.playedAt).compareTo(DateTime.parse(a.playedAt)));
+          ..sort((a, b) =>
+              DateTime.parse(b.playedAt).compareTo(DateTime.parse(a.playedAt)));
         final displayRounds = recentRounds.take(5).toList();
 
         return Column(
-          children: displayRounds.map((round) => ScorecardExpansionTile(round: round)).toList(),
+          children: displayRounds
+              .map((round) => ScorecardExpansionTile(round: round))
+              .toList(),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -147,7 +144,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
           data: (stats) {
             final best = records['best'];
             final worst = records['worst'];
-            
+
             return Column(
               children: [
                 Row(
@@ -186,7 +183,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
                     Expanded(
                       child: StatCard(
                         title: 'Handicap',
-                        value: handicap > 0 
+                        value: handicap > 0
                             ? '+${FormatUtils.formatNumber(handicap)}'
                             : FormatUtils.formatNumber(handicap),
                         color: Colors.purple,
@@ -215,7 +212,7 @@ class _ScoreComparisonCards extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userStatsAsync = ref.watch(userStatsProvider);
-    
+
     return userStatsAsync.when(
       data: (stats) {
         return Row(
@@ -251,6 +248,7 @@ class _ScoreTrendChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final trendAsync = ref.watch(scoreTrendProvider);
+    final benchmarkAsync = ref.watch(benchmarkStatsProvider);
 
     return trendAsync.when(
       data: (trends) {
@@ -258,59 +256,104 @@ class _ScoreTrendChart extends ConsumerWidget {
           return const Center(child: Text('No data available'));
         }
 
-        return Container(
-          height: 250,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
-          ),
-          child: LineChart(
-            LineChartData(
-              gridData: const FlGridData(show: true),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) => Text(
-                      value.toInt().toString(),
-                      style: const TextStyle(fontSize: 10),
+        return benchmarkAsync.when(
+          data: (benchmark) {
+            final overallAvg = benchmark.overall.averageScore;
+            final lastIndex = trends.length > 1 ? trends.length - 1 : 1;
+            final averageLineSpots = [
+              FlSpot(0, overallAvg),
+              FlSpot(lastIndex.toDouble(), overallAvg),
+            ];
+
+            return Container(
+              height: 280,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: LineChart(
+                      LineChartData(
+                        gridData: const FlGridData(show: true),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) => Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 30,
+                              getTitlesWidget: (value, meta) {
+                                if (value.toInt() >= 0 &&
+                                    value.toInt() < trends.length) {
+                                  return Text(
+                                    '${trends[value.toInt()].date.month}/${trends[value.toInt()].date.day}',
+                                    style: const TextStyle(fontSize: 9),
+                                  );
+                                }
+                                return const Text('');
+                              },
+                            ),
+                          ),
+                          rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                        ),
+                        borderData: FlBorderData(show: true),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: trends
+                                .asMap()
+                                .entries
+                                .map((e) => FlSpot(
+                                    e.key.toDouble(), e.value.score.toDouble()))
+                                .toList(),
+                            isCurved: true,
+                            color: AppColors.scoreColor,
+                            barWidth: 3,
+                            dotData: const FlDotData(show: true),
+                          ),
+                          LineChartBarData(
+                            spots: averageLineSpots,
+                            isCurved: false,
+                            color: Colors.grey,
+                            barWidth: 2,
+                            dashArray: [6, 4],
+                            dotData: const FlDotData(show: false),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 30,
-                    getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= 0 && value.toInt() < trends.length) {
-                        return Text(
-                          '${trends[value.toInt()].date.month}/${trends[value.toInt()].date.day}',
-                          style: const TextStyle(fontSize: 9),
-                        );
-                      }
-                      return const Text('');
-                    },
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _LegendDot(color: AppColors.scoreColor, label: '나의 스코어'),
+                      const SizedBox(width: 12),
+                      _LegendDot(color: Colors.grey, label: '전체 평균'),
+                    ],
                   ),
-                ),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ],
               ),
-              borderData: FlBorderData(show: true),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: trends.asMap().entries.map((e) => 
-                    FlSpot(e.key.toDouble(), e.value.score.toDouble())
-                  ).toList(),
-                  isCurved: true,
-                  color: AppColors.scoreColor,
-                  barWidth: 3,
-                  dotData: const FlDotData(show: true),
-                ),
-              ],
-            ),
+            );
+          },
+          loading: () => const SizedBox(
+            height: 250,
+            child: Center(child: CircularProgressIndicator()),
           ),
+          error: (e, _) => Text('Error: $e'),
         );
       },
       loading: () => const SizedBox(
@@ -327,6 +370,7 @@ class _ScoreDistributionChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final distributionAsync = ref.watch(scoreDistributionProvider);
+    final benchmarkAsync = ref.watch(benchmarkStatsProvider);
 
     return distributionAsync.when(
       data: (distribution) {
@@ -334,62 +378,105 @@ class _ScoreDistributionChart extends ConsumerWidget {
           return const Center(child: Text('No data available'));
         }
 
-        return Container(
-          height: 250,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
-          ),
-          child: BarChart(
-            BarChartData(
-              gridData: const FlGridData(show: true),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  axisNameWidget: Text(
-                    'Rounds',
-                    style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) => Text(
-                      value.toInt().toString(),
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  axisNameWidget: Text(
-                    'Total Score',
-                    style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) => Text(
-                      value.toInt().toString(),
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  ),
-                ),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        return benchmarkAsync.when(
+          data: (benchmark) {
+            final overallDistribution =
+                _buildFrequencyMap(benchmark.scoreDistribution);
+            final keys = {
+              ...distribution.keys,
+              ...overallDistribution.keys,
+            }.toList()
+              ..sort();
+
+            return Container(
+              height: 280,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
               ),
-              borderData: FlBorderData(show: true),
-              barGroups: distribution.entries.map((e) {
-                return BarChartGroupData(
-                  x: e.key,
-                  barRods: [
-                    BarChartRodData(
-                      toY: e.value.toDouble(),
-                      color: AppColors.scoreColor,
-                      width: 16,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: BarChart(
+                      BarChartData(
+                        gridData: const FlGridData(show: true),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            axisNameWidget: Text(
+                              'Rounds',
+                              style: GoogleFonts.outfit(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) => Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            axisNameWidget: Text(
+                              'Total Score',
+                              style: GoogleFonts.outfit(
+                                  fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) => Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ),
+                          rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                        ),
+                        borderData: FlBorderData(show: true),
+                        barGroups: keys.map((key) {
+                          final overallValue = overallDistribution[key] ?? 0;
+                          final userValue = distribution[key] ?? 0;
+                          return BarChartGroupData(
+                            x: key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: overallValue.toDouble(),
+                                color: Colors.grey[300],
+                                width: 14,
+                              ),
+                              BarChartRodData(
+                                toY: userValue.toDouble(),
+                                color: AppColors.scoreColor,
+                                width: 8,
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ],
-                );
-              }).toList(),
-            ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _LegendDot(color: Colors.grey, label: '전체 분포'),
+                      const SizedBox(width: 12),
+                      _LegendDot(color: AppColors.scoreColor, label: '나의 분포'),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => const SizedBox(
+            height: 250,
+            child: Center(child: CircularProgressIndicator()),
           ),
+          error: (e, _) => Text('Error: $e'),
         );
       },
       loading: () => const SizedBox(
@@ -399,6 +486,15 @@ class _ScoreDistributionChart extends ConsumerWidget {
       error: (e, _) => Text('Error: $e'),
     );
   }
+}
+
+Map<int, int> _buildFrequencyMap(List<double> values) {
+  final result = <int, int>{};
+  for (final value in values) {
+    final key = value.round();
+    result[key] = (result[key] ?? 0) + 1;
+  }
+  return result;
 }
 
 // Par Average Chart
@@ -459,10 +555,14 @@ class _ParAverageChart extends ConsumerWidget {
 
   Color _getColorForPar(int par) {
     switch (par) {
-      case 3: return Colors.green;
-      case 4: return Colors.blue;
-      case 5: return Colors.orange;
-      default: return Colors.grey;
+      case 3:
+        return Colors.green;
+      case 4:
+        return Colors.blue;
+      case 5:
+        return Colors.orange;
+      default:
+        return Colors.grey;
     }
   }
 }
@@ -517,8 +617,10 @@ class _ScoreBreakdownPie extends ConsumerWidget {
                       ),
                       if (breakdown.doubleBogeys + breakdown.others > 0)
                         PieChartSectionData(
-                          value: (breakdown.doubleBogeys + breakdown.others).toDouble(),
-                          title: '${(breakdown.doubleBogeyRate + breakdown.otherRate).toStringAsFixed(0)}%',
+                          value: (breakdown.doubleBogeys + breakdown.others)
+                              .toDouble(),
+                          title:
+                              '${(breakdown.doubleBogeyRate + breakdown.otherRate).toStringAsFixed(0)}%',
                           color: Colors.red,
                           radius: 60,
                         ),
@@ -533,13 +635,17 @@ class _ScoreBreakdownPie extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (breakdown.eagles > 0)
-                      _buildLegendItem('Eagle', const Color(0xFF00C853), breakdown.eagles),
+                      _buildLegendItem(
+                          'Eagle', const Color(0xFF00C853), breakdown.eagles),
                     if (breakdown.birdies > 0)
-                      _buildLegendItem('Birdie', const Color(0xFF64DD17), breakdown.birdies),
-                    _buildLegendItem('Par', AppColors.scoreColor, breakdown.pars),
+                      _buildLegendItem(
+                          'Birdie', const Color(0xFF64DD17), breakdown.birdies),
+                    _buildLegendItem(
+                        'Par', AppColors.scoreColor, breakdown.pars),
                     _buildLegendItem('Bogey', Colors.orange, breakdown.bogeys),
                     if (breakdown.doubleBogeys + breakdown.others > 0)
-                      _buildLegendItem('Double+', Colors.red, breakdown.doubleBogeys + breakdown.others),
+                      _buildLegendItem('Double+', Colors.red,
+                          breakdown.doubleBogeys + breakdown.others),
                   ],
                 ),
               ),
@@ -575,6 +681,30 @@ class _ScoreBreakdownPie extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(label,
+            style: GoogleFonts.outfit(
+                fontSize: 11, color: AppColors.textSecondary)),
+      ],
     );
   }
 }

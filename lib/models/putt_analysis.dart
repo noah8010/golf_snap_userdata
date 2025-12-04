@@ -4,6 +4,7 @@ class PuttAnalysis {
   final double threePuttRate; // 3퍼트 비율
   final double averagePuttsPerHole; // 홀당 평균 퍼트 수
   final double firstPuttSuccessRate; // 첫 퍼트 성공률
+  final double secondPuttSuccessRate; // 2퍼트 성공률 (첫 퍼트 실패 후)
   final int totalPutts; // 총 퍼트 수
   final int totalHoles; // 총 홀 수
 
@@ -12,6 +13,7 @@ class PuttAnalysis {
     required this.threePuttRate,
     required this.averagePuttsPerHole,
     required this.firstPuttSuccessRate,
+    required this.secondPuttSuccessRate,
     required this.totalPutts,
     required this.totalHoles,
   });

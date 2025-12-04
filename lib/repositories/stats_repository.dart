@@ -6,7 +6,7 @@ import '../models/putt_analysis.dart';
 
 class StatsRepository {
   // ===== 기존 메서드 =====
-  
+
   // 특정 유저의 라운드만 필터링
   List<Round> filterRoundsByUser(List<Round> allRounds, String userId) {
     return allRounds.where((r) => r.userId == userId).toList();
@@ -33,7 +33,9 @@ class StatsRepository {
 
     for (var round in rounds) {
       for (var shot in round.shots) {
-        if (shot.clubType == 'CLUB_D' && shot.shotType == 'SHOT_T' && shot.totalDistance != null) {
+        if (shot.clubType == 'CLUB_D' &&
+            shot.shotType == 'SHOT_T' &&
+            shot.totalDistance != null) {
           totalDist += shot.totalDistance!;
           count++;
         }
@@ -54,17 +56,17 @@ class StatsRepository {
 
     return totalHoles == 0 ? 0.0 : (girSuccess / totalHoles) * 100;
   }
-  
+
   // 페어웨이 안착률
   double calculateFairwayPercentage(List<Round> rounds) {
     int totalAttempted = 0;
     int hit = 0;
-    
+
     for (var round in rounds) {
       totalAttempted += round.fairwaysAttempted;
       hit += round.fairwaysHit;
     }
-    
+
     return totalAttempted == 0 ? 0.0 : (hit / totalAttempted) * 100;
   }
 
@@ -73,14 +75,14 @@ class StatsRepository {
   // 1. 베스트 스코어 (골프장 정보 포함)
   ScoreRecord? getBestScoreRecord(List<Round> rounds) {
     if (rounds.isEmpty) return null;
-    
+
     Round bestRound = rounds.first;
     for (var round in rounds) {
       if (round.totalScore < bestRound.totalScore) {
         bestRound = round;
       }
     }
-    
+
     return ScoreRecord(
       score: bestRound.totalScore,
       courseId: bestRound.courseId,
@@ -93,14 +95,14 @@ class StatsRepository {
   // 2. 워스트 스코어 (골프장 정보 포함)
   ScoreRecord? getWorstScoreRecord(List<Round> rounds) {
     if (rounds.isEmpty) return null;
-    
+
     Round worstRound = rounds.first;
     for (var round in rounds) {
       if (round.totalScore > worstRound.totalScore) {
         worstRound = round;
       }
     }
-    
+
     return ScoreRecord(
       score: worstRound.totalScore,
       courseId: worstRound.courseId,
@@ -113,54 +115,59 @@ class StatsRepository {
   // 3. 핸디캡 계산 (간이 공식: 최근 N 라운드의 평균 - 코스 파)
   double calculateHandicap(List<Round> rounds, {int recentCount = 10}) {
     if (rounds.isEmpty) return 0.0;
-    
+
     // 날짜순 정렬 (최신순)
     final sortedRounds = List<Round>.from(rounds)
-      ..sort((a, b) => DateTime.parse(b.playedAt).compareTo(DateTime.parse(a.playedAt)));
-    
+      ..sort((a, b) =>
+          DateTime.parse(b.playedAt).compareTo(DateTime.parse(a.playedAt)));
+
     final recentRounds = sortedRounds.take(recentCount).toList();
     if (recentRounds.isEmpty) return 0.0;
-    
+
     final avgScore = calculateAverageScore(recentRounds);
-    final avgPar = recentRounds.map((r) => r.totalPar).reduce((a, b) => a + b) / recentRounds.length;
-    
+    final avgPar = recentRounds.map((r) => r.totalPar).reduce((a, b) => a + b) /
+        recentRounds.length;
+
     return avgScore - avgPar;
   }
 
   // 4. 언더/오버파 평균
   double calculateAverageOverUnderPar(List<Round> rounds) {
     if (rounds.isEmpty) return 0.0;
-    
-    final total = rounds.fold<int>(0, (sum, r) => sum + (r.totalScore - r.totalPar));
+
+    final total =
+        rounds.fold<int>(0, (sum, r) => sum + (r.totalScore - r.totalPar));
     return total / rounds.length;
   }
 
   // 5. 스코어 분포
   Map<int, int> getScoreDistribution(List<Round> rounds) {
     final distribution = <int, int>{};
-    
+
     for (var round in rounds) {
-      distribution[round.totalScore] = (distribution[round.totalScore] ?? 0) + 1;
+      distribution[round.totalScore] =
+          (distribution[round.totalScore] ?? 0) + 1;
     }
-    
+
     return Map.fromEntries(
-      distribution.entries.toList()..sort((a, b) => a.key.compareTo(b.key))
-    );
+        distribution.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
   }
 
   // 6. 스코어 추세
   List<ScoreTrend> getScoreTrend(List<Round> rounds) {
-    final trends = rounds.map((r) => ScoreTrend(
-      date: DateTime.parse(r.playedAt),
-      score: r.totalScore,
-      par: r.totalPar,
-      roundId: r.roundId,
-      courseId: r.courseId,
-    )).toList();
-    
+    final trends = rounds
+        .map((r) => ScoreTrend(
+              date: DateTime.parse(r.playedAt),
+              score: r.totalScore,
+              par: r.totalPar,
+              roundId: r.roundId,
+              courseId: r.courseId,
+            ))
+        .toList();
+
     // 날짜순 정렬
     trends.sort((a, b) => a.date.compareTo(b.date));
-    
+
     return trends;
   }
 
@@ -171,7 +178,7 @@ class StatsRepository {
       4: [],
       5: [],
     };
-    
+
     for (var round in rounds) {
       for (var hole in round.holes) {
         if (scoresByPar.containsKey(hole.par)) {
@@ -179,19 +186,20 @@ class StatsRepository {
         }
       }
     }
-    
+
     final averages = <int, double>{};
     scoresByPar.forEach((par, scores) {
-      averages[par] = scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
+      averages[par] =
+          scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
     });
-    
+
     return averages;
   }
 
   // 8. 홀별 평균 스코어 (1~18번)
   Map<int, double> getAverageScoreByHoleNumber(List<Round> rounds) {
     final scoresByHole = <int, List<int>>{};
-    
+
     for (var round in rounds) {
       for (var hole in round.holes) {
         if (!scoresByHole.containsKey(hole.holeNumber)) {
@@ -200,15 +208,15 @@ class StatsRepository {
         scoresByHole[hole.holeNumber]!.add(hole.strokes);
       }
     }
-    
+
     final averages = <int, double>{};
     scoresByHole.forEach((holeNum, scores) {
-      averages[holeNum] = scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
+      averages[holeNum] =
+          scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
     });
-    
+
     return Map.fromEntries(
-      averages.entries.toList()..sort((a, b) => a.key.compareTo(b.key))
-    );
+        averages.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
   }
 
   // 9. 파/버디/보기 비율
@@ -220,12 +228,12 @@ class StatsRepository {
     int doubleBogeys = 0;
     int others = 0;
     int totalHoles = 0;
-    
+
     for (var round in rounds) {
       for (var hole in round.holes) {
         totalHoles++;
         final diff = hole.strokes - hole.par;
-        
+
         if (diff <= -2) {
           eagles++;
         } else if (diff == -1) {
@@ -241,7 +249,7 @@ class StatsRepository {
         }
       }
     }
-    
+
     return ScoreBreakdown(
       eagles: eagles,
       birdies: birdies,
@@ -257,12 +265,12 @@ class StatsRepository {
   double getDoubleBogeyOrWorseRate(List<Round> rounds) {
     int totalHoles = 0;
     int doubleBogeyOrWorse = 0;
-    
+
     for (var round in rounds) {
       totalHoles += round.holes.length;
       doubleBogeyOrWorse += round.doubleBogeyOrWorse;
     }
-    
+
     return totalHoles == 0 ? 0.0 : (doubleBogeyOrWorse / totalHoles) * 100;
   }
 
@@ -270,7 +278,7 @@ class StatsRepository {
   double getUnderParRate(List<Round> rounds) {
     int totalHoles = 0;
     int underPar = 0;
-    
+
     for (var round in rounds) {
       for (var hole in round.holes) {
         totalHoles++;
@@ -279,12 +287,12 @@ class StatsRepository {
         }
       }
     }
-    
+
     return totalHoles == 0 ? 0.0 : (underPar / totalHoles) * 100;
   }
 
   // ===== 퍼팅 분석 =====
-  
+
   /// 퍼팅 분석 데이터 생성
   PuttAnalysis getPuttAnalysis(List<Round> rounds) {
     if (rounds.isEmpty) {
@@ -293,6 +301,7 @@ class StatsRepository {
         threePuttRate: 0.0,
         averagePuttsPerHole: 0.0,
         firstPuttSuccessRate: 0.0,
+        secondPuttSuccessRate: 0.0,
         totalPutts: 0,
         totalHoles: 0,
       );
@@ -317,14 +326,17 @@ class StatsRepository {
     int threePuttHoles = 0;
     int firstPuttAttempts = 0;
     int firstPuttMade = 0;
+    int secondPuttAttempts = 0;
+    int secondPuttMade = 0;
 
     for (var round in rounds) {
       for (var hole in round.holes) {
         totalHoles++;
-        
+
         // 해당 홀의 퍼팅 샷 추출
         final holePutts = round.shots
-            .where((s) => s.holeScoreId == hole.holeScoreId && s.shotType == 'SHOT_P')
+            .where((s) =>
+                s.holeScoreId == hole.holeScoreId && s.shotType == 'SHOT_P')
             .toList();
 
         if (holePutts.isEmpty) continue;
@@ -339,11 +351,20 @@ class StatsRepository {
         // 첫 퍼트 분석
         if (holePutts.isNotEmpty) {
           firstPuttAttempts++;
-          // firstPutt variable removed as it was unused
-          
+
           // 첫 퍼트가 성공했는지 확인 (다음 퍼트가 없거나, 거리가 매우 짧으면 성공으로 간주)
-          if (holePutts.length == 1 || (holePutts.length > 1 && (holePutts[1].puttLength ?? 0) < 0.5)) {
+          if (holePutts.length == 1 ||
+              (holePutts.length > 1 && (holePutts[1].puttLength ?? 0) < 0.5)) {
             firstPuttMade++;
+          } else {
+            // 첫 퍼트 실패 시 2퍼트 분석
+            secondPuttAttempts++;
+            // 2퍼트 성공 여부 (총 퍼트가 2개이거나, 3번째 퍼트 거리가 매우 짧은 경우)
+            if (holePutts.length == 2 ||
+                (holePutts.length > 2 &&
+                    (holePutts[2].puttLength ?? 0) < 0.5)) {
+              secondPuttMade++;
+            }
           }
         }
 
@@ -375,7 +396,8 @@ class StatsRepository {
     for (var range in distanceRanges) {
       final attempts = distanceAttempts[range] ?? [];
       final made = attempts.where((m) => m).length;
-      final successRate = attempts.isEmpty ? 0.0 : (made / attempts.length) * 100;
+      final successRate =
+          attempts.isEmpty ? 0.0 : (made / attempts.length) * 100;
 
       byDistance[range] = PuttDistanceStats(
         distanceRange: range,
@@ -387,9 +409,15 @@ class StatsRepository {
 
     return PuttAnalysis(
       byDistance: byDistance,
-      threePuttRate: totalHoles == 0 ? 0.0 : (threePuttHoles / totalHoles) * 100,
+      threePuttRate:
+          totalHoles == 0 ? 0.0 : (threePuttHoles / totalHoles) * 100,
       averagePuttsPerHole: totalHoles == 0 ? 0.0 : totalPutts / totalHoles,
-      firstPuttSuccessRate: firstPuttAttempts == 0 ? 0.0 : (firstPuttMade / firstPuttAttempts) * 100,
+      firstPuttSuccessRate: firstPuttAttempts == 0
+          ? 0.0
+          : (firstPuttMade / firstPuttAttempts) * 100,
+      secondPuttSuccessRate: secondPuttAttempts == 0
+          ? 0.0
+          : (secondPuttMade / secondPuttAttempts) * 100,
       totalPutts: totalPutts,
       totalHoles: totalHoles,
     );
