@@ -1,0 +1,62 @@
+{
+  "game_modes": [
+    { "code": "SINGLE", "label": "싱글 플레이", "description": "혼자서 연습하거나 기록을 측정하는 모드" },
+    { "code": "LOCAL", "label": "로컬 플레이", "description": "한 기기에서 여러 명이 함께 플레이" },
+    { "code": "MULTIPLAY", "label": "네트워크 플레이", "description": "다른 장소의 플레이어들과 실시간 대결" },
+    { "code": "TOURNEY", "label": "대회 모드", "description": "정해진 기간 동안 진행되는 온라인 대회" }
+  ],
+  "game_rules": [
+    { "code": "RULE_STROKE", "label": "스트로크", "description": "총 타수로 승부를 겨루는 기본 방식" },
+    { "code": "RULE_FOURBALL", "label": "포볼", "description": "2인 1조, 각자 플레이 후 좋은 스코어 채택" },
+    { "code": "RULE_FOURSOME", "label": "포섬", "description": "2인 1조, 공 하나를 번갈아 치는 방식" },
+    { "code": "RULE_SCRAMBLE", "label": "스크램블", "description": "팀원 모두 티샷 후 가장 좋은 위치에서 다음 샷 진행" },
+    { "code": "RULE_MODIFIED", "label": "변형 스트로크", "description": "변형된 점수 계산 방식을 적용한 스트로크" }
+  ],
+  "tee_boxes": [
+    { "code": "TB_BLACK", "label": "블랙 티", "description": "프로/상급자용 (가장 먼 거리)" },
+    { "code": "TB_BLUE", "label": "블루 티", "description": "상급자용" },
+    { "code": "TB_WHITE", "label": "화이트 티", "description": "일반 남성 골퍼용" },
+    { "code": "TB_RED", "label": "레드 티", "description": "여성 골퍼용" },
+    { "code": "TB_GOLD", "label": "골드 티", "description": "시니어 골퍼용" }
+  ],
+  "club_types": [
+    { "code": "CLUB_D", "label": "드라이버" },
+    { "code": "CLUB_W3", "label": "3번 우드" },
+    { "code": "CLUB_W5", "label": "5번 우드" },
+    { "code": "CLUB_U", "label": "유틸리티" },
+    { "code": "CLUB_I3", "label": "3번 아이언" },
+    { "code": "CLUB_I4", "label": "4번 아이언" },
+    { "code": "CLUB_I5", "label": "5번 아이언" },
+    { "code": "CLUB_I6", "label": "6번 아이언" },
+    { "code": "CLUB_I7", "label": "7번 아이언" },
+    { "code": "CLUB_I8", "label": "8번 아이언" },
+    { "code": "CLUB_I9", "label": "9번 아이언" },
+    { "code": "CLUB_PW", "label": "피칭 웨지" },
+    { "code": "CLUB_AW", "label": "어프로치 웨지" },
+    { "code": "CLUB_SW", "label": "샌드 웨지" },
+    { "code": "CLUB_LW", "label": "로브 웨지" },
+    { "code": "CLUB_P", "label": "퍼터" }
+  ],
+  "shot_types": [
+    { "code": "SHOT_T", "label": "티샷" },
+    { "code": "SHOT_A", "label": "어프로치" },
+    { "code": "SHOT_C", "label": "칩샷" },
+    { "code": "SHOT_B", "label": "벙커샷" },
+    { "code": "SHOT_P", "label": "퍼팅" }
+  ],
+  "lies": [
+    { "code": "LIE_TEE", "label": "티박스" },
+    { "code": "LIE_FAIR", "label": "페어웨이" },
+    { "code": "LIE_ROUGH", "label": "러프" },
+    { "code": "LIE_BUNK", "label": "벙커" },
+    { "code": "LIE_GREEN", "label": "그린" },
+    { "code": "LIE_FRINGE", "label": "프린지" },
+    { "code": "LIE_WATER", "label": "워터 해저드" },
+    { "code": "LIE_OB", "label": "OB 구역" }
+  ],
+  "penalty_details": [
+    { "code": "PEN_OB", "label": "OB" },
+    { "code": "PEN_WATER", "label": "해저드" },
+    { "code": "PEN_UNPLAY", "label": "언플레이어블" }
+  ]
+}
