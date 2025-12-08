@@ -3,8 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_constants.dart';
 
 class FirstPuttCard extends StatelessWidget {
-  final double rate; // 0~1 (예: 0.85 = 85%)
-  const FirstPuttCard({required this.rate, super.key});
+  final double rate;
+  final String title;
+  final IconData icon;
+  final Color accentColor;
+
+  const FirstPuttCard({
+    super.key,
+    required this.rate,
+    this.title = '첫 퍼트 성공률',
+    this.icon = Icons.sports_golf,
+    this.accentColor = AppColors.puttsColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +26,7 @@ class FirstPuttCard extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            Icon(Icons.sports_golf, size: 48, color: AppColors.puttsColor),
+            Icon(icon, size: 48, color: accentColor),
             const SizedBox(height: 16),
             Text(
               '${rate.toStringAsFixed(1)}%',
@@ -28,7 +38,7 @@ class FirstPuttCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '첫 퍼트 성공률',
+              title,
               style: GoogleFonts.outfit(
                 fontSize: 16,
                 color: AppColors.textSecondary,

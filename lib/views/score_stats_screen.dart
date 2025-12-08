@@ -253,7 +253,7 @@ class _ScoreTrendChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final trendAsync = ref.watch(scoreTrendProvider);
-    final benchmarkAsync = ref.watch(benchmarkStatsProvider);
+    final benchmarkAsync = ref.watch(peerBenchmarkStatsProvider);
 
     return trendAsync.when(
       data: (trends) {

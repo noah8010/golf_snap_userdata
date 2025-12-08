@@ -40,13 +40,27 @@ class PuttingAnalysisScreen extends ConsumerWidget {
               const SizedBox(height: AppStyles.spacingSmall),
               ThreePuttPieChart(rate: stats.threePuttRate),
               const SizedBox(height: AppStyles.spacingLarge),
-              const Text('첫 퍼트 성공률', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppStyles.spacingSmall),
-              FirstPuttCard(rate: stats.firstPuttSuccessRate),
-              const SizedBox(height: AppStyles.spacingLarge),
-              const Text('2퍼트 성공률', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: AppStyles.spacingSmall),
-              _SecondPuttCard(rate: stats.secondPuttSuccessRate),
+              Row(
+                children: [
+                  Expanded(
+                    child: FirstPuttCard(
+                      rate: stats.firstPuttSuccessRate,
+                      title: '첫 퍼트 성공률',
+                      icon: Icons.looks_one,
+                      accentColor: AppColors.puttsColor,
+                    ),
+                  ),
+                  const SizedBox(width: AppStyles.spacingMedium),
+                  Expanded(
+                    child: FirstPuttCard(
+                      rate: stats.secondPuttSuccessRate,
+                      title: '2퍼트 성공률',
+                      icon: Icons.looks_two,
+                      accentColor: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -94,25 +108,3 @@ class _PuttingComparisonCards extends ConsumerWidget {
   }
 }
 
-class _SecondPuttCard extends StatelessWidget {
-  final double rate;
-  const _SecondPuttCard({required this.rate});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text('2nd Putt Success Rate', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('${rate.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
-          ],
-        ),
-      ),
-    );
-  }
-}
