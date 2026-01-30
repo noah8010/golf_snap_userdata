@@ -50,15 +50,15 @@ class RadarChartWidget extends StatelessWidget {
               getTitle: (index, angle) {
                 switch (index) {
                   case 0:
-                    return RadarChartTitle(text: 'Score');
+                    return RadarChartTitle(text: '스코어');
                   case 1:
-                    return RadarChartTitle(text: 'Putts');
+                    return RadarChartTitle(text: '퍼팅');
                   case 2:
-                    return RadarChartTitle(text: 'Driver');
+                    return RadarChartTitle(text: '드라이버');
                   case 3:
-                    return RadarChartTitle(text: 'GIR');
+                    return RadarChartTitle(text: '그린적중');
                   case 4:
-                    return RadarChartTitle(text: 'Fairway');
+                    return RadarChartTitle(text: '페어웨이');
                   default:
                     return const RadarChartTitle(text: '');
                 }
@@ -74,9 +74,9 @@ class RadarChartWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildLegendItem('Me', AppColors.primary),
+            _buildLegendItem('나', AppColors.primary),
             const SizedBox(width: 24),
-            _buildLegendItem('Average', Colors.grey),
+            _buildLegendItem('전체 평균', Colors.grey),
           ],
         ),
       ],

@@ -59,7 +59,7 @@ class ScoreRecordCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            scoreRecord != null ? 'Course: ${scoreRecord.ccName ?? scoreRecord.courseId}' : '',
+            scoreRecord != null ? '코스: ${scoreRecord.ccName ?? scoreRecord.courseId}' : '',
             style: GoogleFonts.outfit(
               fontSize: 10,
               color: AppColors.textSecondary,

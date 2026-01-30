@@ -40,7 +40,7 @@ class DashboardScreen extends ConsumerWidget {
   PreferredSizeWidget _buildAppBar(String userId) {
     return AppBar(
       title: Text(
-        'Golf Stats - $userId',
+        '골프 통계 - $userId',
         style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
       ),
       backgroundColor: AppColors.cardBackground,
@@ -66,7 +66,7 @@ class DashboardScreen extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader('Overview'),
+              _buildHeader('개요'),
               const SizedBox(height: AppStyles.spacingSmall),
               SizedBox(
                 width: 140,
@@ -98,7 +98,7 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: ScoreRecordCard(
-                  title: 'Best Score',
+                  title: '베스트 스코어',
                   scoreRecord: best,
                   color: Colors.green,
                   icon: Icons.emoji_events,
@@ -107,7 +107,7 @@ class DashboardScreen extends ConsumerWidget {
               const SizedBox(width: AppStyles.spacingMedium),
               Expanded(
                 child: ScoreRecordCard(
-                  title: 'Worst Score',
+                  title: '워스트 스코어',
                   scoreRecord: worst,
                   color: Colors.red,
                   icon: Icons.warning_amber,
@@ -118,11 +118,11 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: AppStyles.spacingMedium),
           _buildStatsGrid(stats),
           const SizedBox(height: AppStyles.spacingLarge),
-          _buildHeader('Comparison'),
+          _buildHeader('비교 분석'),
           const SizedBox(height: AppStyles.spacingMedium),
           _buildComparisonGrid(stats),
           const SizedBox(height: AppStyles.spacingLarge),
-          _buildHeader('Top 10% Comparison'),
+          _buildHeader('상위 10% 비교'),
           const SizedBox(height: AppStyles.spacingMedium),
           _buildTopComparisonGrid(stats),
           const SizedBox(height: AppStyles.spacingMedium),
@@ -146,7 +146,7 @@ class DashboardScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: AppStyles.spacingLarge),
-          _buildHeader('Recent Rounds'),
+          _buildHeader('바로가기'),
           const SizedBox(height: AppStyles.spacingMedium),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,7 +159,7 @@ class DashboardScreen extends ConsumerWidget {
                   );
                 },
                 icon: const Icon(Icons.analytics),
-                label: const Text('View Detailed Score Stats'),
+                label: const Text('스코어 분석 보기'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.scoreColor,
                   foregroundColor: Colors.white,
@@ -223,7 +223,7 @@ class DashboardScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppStyles.spacingMedium),
-          const Center(child: Text('Round List Component Here')),
+          const Center(child: Text('라운드 목록')),
         ],
       ),
     );
@@ -236,7 +236,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: StatCard(
-                title: 'Avg Score',
+                title: '평균 타수',
                 value: FormatUtils.formatNumber(stats['avgScore']!),
                 color: AppColors.scoreColor,
                 icon: Icons.analytics,
@@ -245,7 +245,7 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(width: AppStyles.spacingMedium),
             Expanded(
               child: StatCard(
-                title: 'Avg Putts',
+                title: '평균 퍼팅',
                 value: FormatUtils.formatNumber(stats['avgPutts']!),
                 color: AppColors.puttsColor,
                 icon: Icons.sports_golf,
@@ -258,7 +258,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: StatCard(
-                title: 'Driver Dist',
+                title: '드라이버 비거리',
                 value: FormatUtils.formatDistance(stats['driverDist']!),
                 color: AppColors.driverColor,
                 icon: Icons.landscape,
@@ -267,7 +267,7 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(width: AppStyles.spacingMedium),
             Expanded(
               child: StatCard(
-                title: 'GIR',
+                title: '그린 적중률',
                 value: FormatUtils.formatPercent(stats['gir']!),
                 color: AppColors.girColor,
                 icon: Icons.check_circle_outline,
@@ -277,7 +277,7 @@ class DashboardScreen extends ConsumerWidget {
         ),
         const SizedBox(height: AppStyles.spacingMedium),
         StatCard(
-          title: 'Fairway Hit',
+          title: '페어웨이 안착률',
           value: FormatUtils.formatPercent(stats['fairway']!),
           color: AppColors.fairwayColor,
           icon: Icons.grass,
@@ -416,7 +416,7 @@ class DashboardScreen extends ConsumerWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
           const SizedBox(height: 16),
-          Text('Error: $message'),
+          Text('오류: $message'),
         ],
       ),
     );

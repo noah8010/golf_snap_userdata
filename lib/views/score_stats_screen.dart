@@ -20,7 +20,7 @@ class ScoreStatsScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          'Score Statistics',
+          '스코어 통계',
           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.cardBackground,
@@ -32,21 +32,21 @@ class ScoreStatsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader('Overview'),
+            _buildSectionHeader('개요'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreOverviewCards(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Comparison'),
+            _buildSectionHeader('비교 분석'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreComparisonCards(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Score Trend'),
+            _buildSectionHeader('스코어 추이'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreTrendChart(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Score Distribution'),
+            _buildSectionHeader('스코어 분포'),
             Text(
-              'Number of rounds for each total score',
+              '각 스코어별 라운드 수',
               style: GoogleFonts.outfit(
                 fontSize: 12,
                 color: AppColors.textSecondary,
@@ -55,7 +55,7 @@ class ScoreStatsScreen extends ConsumerWidget {
             const SizedBox(height: AppStyles.spacingSmall),
             _ScoreDistributionChart(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Average by Par'),
+            _buildSectionHeader('Par별 평균 타수'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ParAverageChart(),
             const SizedBox(height: AppStyles.spacingLarge),
@@ -77,7 +77,7 @@ class ScoreStatsScreen extends ConsumerWidget {
             const SizedBox(height: AppStyles.spacingMedium),
             _RecentScorecardsList(),
             const SizedBox(height: AppStyles.spacingLarge),
-            _buildSectionHeader('Score Breakdown'),
+            _buildSectionHeader('스코어 구성'),
             const SizedBox(height: AppStyles.spacingMedium),
             _ScoreBreakdownPie(),
           ],
@@ -107,7 +107,7 @@ class _RecentScorecardsList extends ConsumerWidget {
     return userRoundsAsync.when(
       data: (rounds) {
         if (rounds.isEmpty) {
-          return const Center(child: Text('No rounds available'));
+          return const Center(child: Text('라운드 데이터가 없습니다'));
         }
 
         // 최신순으로 정렬하고 최대 5개만 표시
@@ -126,7 +126,7 @@ class _RecentScorecardsList extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -152,7 +152,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: ScoreRecordCard(
-                        title: 'Best Score',
+                        title: '베스트 스코어',
                         scoreRecord: best,
                         color: Colors.green,
                         icon: Icons.emoji_events,
@@ -161,7 +161,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
                     const SizedBox(width: AppStyles.spacingMedium),
                     Expanded(
                       child: ScoreRecordCard(
-                        title: 'Worst Score',
+                        title: '워스트 스코어',
                         scoreRecord: worst,
                         color: Colors.red,
                         icon: Icons.warning_amber,
@@ -174,7 +174,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: StatCard(
-                        title: 'Avg Score',
+                        title: '평균 타수',
                         value: FormatUtils.formatNumber(stats['avgScore']!),
                         color: AppColors.scoreColor,
                         icon: Icons.analytics,
@@ -183,7 +183,7 @@ class _ScoreOverviewCards extends ConsumerWidget {
                     const SizedBox(width: AppStyles.spacingMedium),
                     Expanded(
                       child: StatCard(
-                        title: 'Handicap',
+                        title: '핸디캡',
                         value: handicap > 0
                             ? '+${FormatUtils.formatNumber(handicap)}'
                             : FormatUtils.formatNumber(handicap),
@@ -197,13 +197,13 @@ class _ScoreOverviewCards extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Error: $e'),
+          error: (e, _) => Text('오류: $e'),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Text('Error: $e'),
+        error: (e, _) => Text('오류: $e'),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -243,7 +243,7 @@ class _ScoreComparisonCards extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -258,7 +258,7 @@ class _ScoreTrendChart extends ConsumerWidget {
     return trendAsync.when(
       data: (trends) {
         if (trends.isEmpty) {
-          return const Center(child: Text('No data available'));
+          return const Center(child: Text('데이터가 없습니다'));
         }
 
         return benchmarkAsync.when(
@@ -364,14 +364,14 @@ class _ScoreTrendChart extends ConsumerWidget {
             height: 250,
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (e, _) => Text('Error: $e'),
+          error: (e, _) => Text('오류: $e'),
         );
       },
       loading: () => const SizedBox(
         height: 250,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -386,7 +386,7 @@ class _ScoreDistributionChart extends ConsumerWidget {
     return distributionAsync.when(
       data: (distribution) {
         if (distribution.isEmpty) {
-          return const Center(child: Text('No data available'));
+          return const Center(child: Text('데이터가 없습니다'));
         }
 
         return benchmarkAsync.when(
@@ -415,7 +415,7 @@ class _ScoreDistributionChart extends ConsumerWidget {
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
                             axisNameWidget: Text(
-                              'Rounds',
+                              '라운드',
                               style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -432,7 +432,7 @@ class _ScoreDistributionChart extends ConsumerWidget {
                           ),
                           bottomTitles: AxisTitles(
                             axisNameWidget: Text(
-                              'Total Score',
+                              '총 타수',
                               style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -493,14 +493,14 @@ class _ScoreDistributionChart extends ConsumerWidget {
             height: 250,
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (e, _) => Text('Error: $e'),
+          error: (e, _) => Text('오류: $e'),
         );
       },
       loading: () => const SizedBox(
         height: 250,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -566,7 +566,7 @@ class _ParAverageChart extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 
@@ -653,25 +653,25 @@ class _ScoreBreakdownPie extends ConsumerWidget {
                   children: [
                     if (breakdown.eagles > 0)
                       _buildLegendItem(
-                        'Eagle',
+                        '이글',
                         const Color(0xFF00C853),
                         breakdown.eagles,
                       ),
                     if (breakdown.birdies > 0)
                       _buildLegendItem(
-                        'Birdie',
+                        '버디',
                         const Color(0xFF64DD17),
                         breakdown.birdies,
                       ),
                     _buildLegendItem(
-                      'Par',
+                      '파',
                       AppColors.scoreColor,
                       breakdown.pars,
                     ),
-                    _buildLegendItem('Bogey', Colors.orange, breakdown.bogeys),
+                    _buildLegendItem('보기', Colors.orange, breakdown.bogeys),
                     if (breakdown.doubleBogeys + breakdown.others > 0)
                       _buildLegendItem(
-                        'Double+',
+                        '더블보기+',
                         Colors.red,
                         breakdown.doubleBogeys + breakdown.others,
                       ),
@@ -686,7 +686,7 @@ class _ScoreBreakdownPie extends ConsumerWidget {
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 

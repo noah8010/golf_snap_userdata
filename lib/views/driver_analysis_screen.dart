@@ -46,14 +46,14 @@ class DriverAnalysisScreen extends ConsumerWidget {
                 const SizedBox(height: AppStyles.spacingLarge),
 
                 const Text(
-                  'Comparison',
+                  '비교 분석',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppStyles.spacingSmall),
                 _DriverComparisonCards(),
                 const SizedBox(height: AppStyles.spacingLarge),
                 const Text(
-                  'Top 10% Comparison',
+                  '상위 10% 비교',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppStyles.spacingSmall),
@@ -99,7 +99,7 @@ class DriverAnalysisScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
+        error: (e, st) => Center(child: Text('오류: $e')),
       ),
     );
   }
@@ -172,7 +172,7 @@ class _DriverComparisonCards extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
@@ -213,7 +213,7 @@ class _DriverTopComparisonCards extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }

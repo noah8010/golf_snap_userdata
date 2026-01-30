@@ -28,7 +28,7 @@ class PuttingAnalysisScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Comparison', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('비교 분석', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: AppStyles.spacingSmall),
               _PuttingComparisonCards(),
               const SizedBox(height: AppStyles.spacingLarge),
@@ -65,7 +65,7 @@ class PuttingAnalysisScreen extends ConsumerWidget {
           ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
+        error: (e, st) => Center(child: Text('오류: $e')),
       ),
     );
   }
@@ -103,7 +103,7 @@ class _PuttingComparisonCards extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text('오류: $e'),
     );
   }
 }
