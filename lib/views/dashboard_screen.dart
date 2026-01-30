@@ -11,7 +11,6 @@ import 'widgets/score_record_card.dart';
 import 'widgets/stat_card.dart';
 import 'widgets/comparison_card.dart';
 import 'widgets/radar_chart_widget.dart';
-import '../models/benchmark_stats.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -121,10 +120,6 @@ class DashboardScreen extends ConsumerWidget {
           _buildHeader('비교 분석'),
           const SizedBox(height: AppStyles.spacingMedium),
           _buildComparisonGrid(stats),
-          const SizedBox(height: AppStyles.spacingLarge),
-          _buildHeader('상위 10% 비교'),
-          const SizedBox(height: AppStyles.spacingMedium),
-          _buildTopComparisonGrid(stats),
           const SizedBox(height: AppStyles.spacingMedium),
           Consumer(
             builder: (context, ref, _) {
@@ -328,68 +323,6 @@ class DashboardScreen extends ConsumerWidget {
                 userValue: stats['avgPutts'] ?? 0,
                 metric: 'putts',
                 lowerIsBetter: true,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTopComparisonGrid(Map<String, double> stats) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: ComparisonCard(
-                title: '평균 스코어',
-                userValue: stats['avgScore'] ?? 0,
-                metric: 'score',
-                lowerIsBetter: true,
-                target: BenchmarkTarget.top10,
-                showUserValue: false,
-                showDifference: false,
-              ),
-            ),
-            const SizedBox(width: AppStyles.spacingMedium),
-            Expanded(
-              child: ComparisonCard(
-                title: '페어웨이 적중률',
-                userValue: stats['fairway'] ?? 0,
-                metric: 'fairway',
-                unit: '%',
-                target: BenchmarkTarget.top10,
-                showUserValue: false,
-                showDifference: false,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppStyles.spacingMedium),
-        Row(
-          children: [
-            Expanded(
-              child: ComparisonCard(
-                title: 'GIR',
-                userValue: stats['gir'] ?? 0,
-                metric: 'gir',
-                unit: '%',
-                target: BenchmarkTarget.top10,
-                showUserValue: false,
-                showDifference: false,
-              ),
-            ),
-            const SizedBox(width: AppStyles.spacingMedium),
-            Expanded(
-              child: ComparisonCard(
-                title: '평균 퍼팅',
-                userValue: stats['avgPutts'] ?? 0,
-                metric: 'putts',
-                lowerIsBetter: true,
-                target: BenchmarkTarget.top10,
-                showUserValue: false,
-                showDifference: false,
               ),
             ),
           ],

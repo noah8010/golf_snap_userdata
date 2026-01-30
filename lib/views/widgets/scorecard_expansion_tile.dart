@@ -4,6 +4,7 @@ import '../../models/round.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/format_utils.dart';
 import 'scorecard_table.dart';
+import 'companion_score_dialog.dart';
 
 class ScorecardExpansionTile extends StatelessWidget {
   final Round round;
@@ -82,6 +83,28 @@ class ScorecardExpansionTile extends StatelessWidget {
             ],
           ),
           children: [
+            // 동반자 스코어 버튼
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CompanionScoreDialog(userRound: round),
+                  );
+                },
+                icon: const Icon(Icons.people, size: 18),
+                label: const Text('동반자 스코어 보기'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+              ),
+            ),
             ScorecardTable(round: round),
           ],
         ),

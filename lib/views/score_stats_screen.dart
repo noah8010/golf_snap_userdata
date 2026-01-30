@@ -8,6 +8,7 @@ import '../utils/format_utils.dart';
 import '../models/round.dart';
 import 'widgets/scorecard_expansion_tile.dart';
 import 'widgets/score_record_card.dart';
+import 'all_scorecards_screen.dart';
 import 'widgets/stat_card.dart';
 import 'widgets/comparison_card.dart';
 
@@ -65,7 +66,10 @@ class ScoreStatsScreen extends ConsumerWidget {
                 _buildSectionHeader('최근 스코어카드'),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to full scorecard list
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AllScorecardsScreen()),
+                    );
                   },
                   child: Text(
                     '전체보기',
@@ -248,7 +252,7 @@ class _ScoreComparisonCards extends ConsumerWidget {
   }
 }
 
-// Score Trend Chart
+// Score Trend Chart - 막대그래프
 class _ScoreTrendChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -264,11 +268,10 @@ class _ScoreTrendChart extends ConsumerWidget {
         return benchmarkAsync.when(
           data: (benchmark) {
             final overallAvg = benchmark.overall.averageScore;
-            final lastIndex = trends.length > 1 ? trends.length - 1 : 1;
-            final averageLineSpots = [
-              FlSpot(0, overallAvg),
-              FlSpot(lastIndex.toDouble(), overallAvg),
-            ];
+            // 최근 20개만 표시
+            final displayTrends = trends.length > 20
+                ? trends.sublist(trends.length - 20)
+                : trends;
 
             return Container(
               height: 280,
@@ -280,8 +283,8 @@ class _ScoreTrendChart extends ConsumerWidget {
               child: Column(
                 children: [
                   Expanded(
-                    child: LineChart(
-                      LineChartData(
+                    child: BarChart(
+                      BarChartData(
                         gridData: const FlGridData(show: true),
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
@@ -299,11 +302,14 @@ class _ScoreTrendChart extends ConsumerWidget {
                               showTitles: true,
                               reservedSize: 30,
                               getTitlesWidget: (value, meta) {
-                                if (value.toInt() >= 0 &&
-                                    value.toInt() < trends.length) {
-                                  return Text(
-                                    '${trends[value.toInt()].date.month}/${trends[value.toInt()].date.day}',
-                                    style: const TextStyle(fontSize: 9),
+                                final idx = value.toInt();
+                                if (idx >= 0 && idx < displayTrends.length && idx % 3 == 0) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      '${displayTrends[idx].date.month}/${displayTrends[idx].date.day}',
+                                      style: const TextStyle(fontSize: 8),
+                                    ),
                                   );
                                 }
                                 return const Text('');
@@ -318,32 +324,43 @@ class _ScoreTrendChart extends ConsumerWidget {
                           ),
                         ),
                         borderData: FlBorderData(show: true),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: trends
-                                .asMap()
-                                .entries
-                                .map(
-                                  (e) => FlSpot(
-                                    e.key.toDouble(),
-                                    e.value.score.toDouble(),
-                                  ),
-                                )
-                                .toList(),
-                            isCurved: true,
-                            color: AppColors.scoreColor,
-                            barWidth: 3,
-                            dotData: const FlDotData(show: true),
-                          ),
-                          LineChartBarData(
-                            spots: averageLineSpots,
-                            isCurved: false,
-                            color: Colors.grey,
-                            barWidth: 2,
-                            dashArray: [6, 4],
-                            dotData: const FlDotData(show: false),
-                          ),
-                        ],
+                        barGroups: displayTrends.asMap().entries.map((e) {
+                          final score = e.value.score.toDouble();
+                          // 평균보다 좋으면 초록색, 나쁘면 빨간색
+                          final color = score <= overallAvg
+                              ? AppColors.scoreColor
+                              : Colors.red.shade300;
+                          return BarChartGroupData(
+                            x: e.key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: score,
+                                color: color,
+                                width: displayTrends.length > 15 ? 8 : 12,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(4),
+                                  topRight: Radius.circular(4),
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                        extraLinesData: ExtraLinesData(
+                          horizontalLines: [
+                            HorizontalLine(
+                              y: overallAvg,
+                              color: Colors.grey,
+                              strokeWidth: 2,
+                              dashArray: [6, 4],
+                              label: HorizontalLineLabel(
+                                show: true,
+                                alignment: Alignment.topRight,
+                                labelResolver: (line) => '평균 ${overallAvg.toStringAsFixed(1)}',
+                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -351,7 +368,9 @@ class _ScoreTrendChart extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _LegendDot(color: AppColors.scoreColor, label: '나의 스코어'),
+                      _LegendDot(color: AppColors.scoreColor, label: '평균 이하'),
+                      const SizedBox(width: 12),
+                      _LegendDot(color: Colors.red.shade300, label: '평균 초과'),
                       const SizedBox(width: 12),
                       _LegendDot(color: Colors.grey, label: '전체 평균'),
                     ],
@@ -376,12 +395,29 @@ class _ScoreTrendChart extends ConsumerWidget {
   }
 }
 
-// Score Distribution Chart
+// Score Distribution Chart - 5단계 분포
 class _ScoreDistributionChart extends ConsumerWidget {
+  // 5단계 범주 정의
+  static const List<String> _categories = ['~72', '73~80', '81~90', '91~100', '101~'];
+  static const List<Color> _categoryColors = [
+    Color(0xFF00C853),  // 초록 - 72 이하
+    Color(0xFF64DD17),  // 연두 - 73~80
+    Color(0xFF2196F3),  // 파랑 - 81~90
+    Color(0xFFFF9800),  // 주황 - 91~100
+    Color(0xFFF44336),  // 빨강 - 101 이상
+  ];
+
+  int _getCategoryIndex(int score) {
+    if (score <= 72) return 0;
+    if (score <= 80) return 1;
+    if (score <= 90) return 2;
+    if (score <= 100) return 3;
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final distributionAsync = ref.watch(scoreDistributionProvider);
-    final benchmarkAsync = ref.watch(benchmarkStatsProvider);
 
     return distributionAsync.when(
       data: (distribution) {
@@ -389,129 +425,136 @@ class _ScoreDistributionChart extends ConsumerWidget {
           return const Center(child: Text('데이터가 없습니다'));
         }
 
-        return benchmarkAsync.when(
-          data: (benchmark) {
-            final overallDistribution = _buildFrequencyMap(
-              benchmark.scoreDistribution,
-            );
-            final keys = {
-              ...distribution.keys,
-              ...overallDistribution.keys,
-            }.toList()..sort();
+        // 5단계로 집계
+        final categoryCounts = List<int>.filled(5, 0);
+        for (final entry in distribution.entries) {
+          final idx = _getCategoryIndex(entry.key);
+          categoryCounts[idx] += entry.value;
+        }
 
-            return Container(
-              height: 280,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: BarChart(
-                      BarChartData(
-                        gridData: const FlGridData(show: true),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            axisNameWidget: Text(
-                              '라운드',
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) => Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                            ),
-                          ),
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: Text(
-                              '총 타수',
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) => Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                            ),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
+        final total = categoryCounts.fold<int>(0, (sum, c) => sum + c);
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(AppStyles.cardBorderRadius),
+          ),
+          child: Column(
+            children: [
+              // 막대그래프
+              SizedBox(
+                height: 200,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: (categoryCounts.reduce((a, b) => a > b ? a : b) * 1.2).toDouble(),
+                    gridData: const FlGridData(show: true, drawVerticalLine: false),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) => Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(fontSize: 10),
                           ),
                         ),
-                        borderData: FlBorderData(show: true),
-                        barGroups: keys.map((key) {
-                          final overallValue = overallDistribution[key] ?? 0;
-                          final userValue = distribution[key] ?? 0;
-                          return BarChartGroupData(
-                            x: key,
-                            barRods: [
-                              BarChartRodData(
-                                toY: overallValue.toDouble(),
-                                color: Colors.grey[300],
-                                width: 14,
-                              ),
-                              BarChartRodData(
-                                toY: userValue.toDouble(),
-                                color: AppColors.scoreColor,
-                                width: 8,
-                              ),
-                            ],
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            final idx = value.toInt();
+                            if (idx >= 0 && idx < _categories.length) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  _categories[idx],
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            }
+                            return const Text('');
+                          },
+                        ),
+                      ),
+                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    barGroups: List.generate(5, (idx) {
+                      return BarChartGroupData(
+                        x: idx,
+                        barRods: [
+                          BarChartRodData(
+                            toY: categoryCounts[idx].toDouble(),
+                            color: _categoryColors[idx],
+                            width: 40,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(6),
+                              topRight: Radius.circular(6),
+                            ),
+                          ),
+                        ],
+                        showingTooltipIndicators: categoryCounts[idx] > 0 ? [0] : [],
+                      );
+                    }),
+                    barTouchData: BarTouchData(
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final count = categoryCounts[groupIndex];
+                          final percent = total > 0 ? (count / total * 100).toStringAsFixed(1) : '0';
+                          return BarTooltipItem(
+                            '$count회\n($percent%)',
+                            const TextStyle(color: Colors.white, fontSize: 12),
                           );
-                        }).toList(),
+                        },
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _LegendDot(color: Colors.grey, label: '전체 분포'),
-                      const SizedBox(width: 12),
-                      _LegendDot(color: AppColors.scoreColor, label: '나의 분포'),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            );
-          },
-          loading: () => const SizedBox(
-            height: 250,
-            child: Center(child: CircularProgressIndicator()),
+              const SizedBox(height: 16),
+              // 범례
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: List.generate(5, (idx) {
+                  final percent = total > 0 ? (categoryCounts[idx] / total * 100).toStringAsFixed(0) : '0';
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: _categoryColors[idx],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${_categories[idx]} ($percent%)',
+                        style: GoogleFonts.outfit(fontSize: 11),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
           ),
-          error: (e, _) => Text('오류: $e'),
         );
       },
       loading: () => const SizedBox(
-        height: 250,
+        height: 280,
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Text('오류: $e'),
     );
   }
-}
-
-Map<int, int> _buildFrequencyMap(List<double> values) {
-  final result = <int, int>{};
-  for (final value in values) {
-    final key = value.round();
-    result[key] = (result[key] ?? 0) + 1;
-  }
-  return result;
 }
 
 // Par Average Chart
